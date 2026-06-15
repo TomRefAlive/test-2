@@ -1,0 +1,1604 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JAN NOVÁK — Fotograf</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Montserrat:wght@200;300;400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg: #0a0a0a;
+    --bg2: #111111;
+    --bg3: #161616;
+    --text: #e8e4de;
+    --muted: #7a7570;
+    --accent: #c8a96e;
+    --accent2: #8b6e45;
+    --border: rgba(200,169,110,0.15);
+    --font-serif: 'Cormorant Garamond', Georgia, serif;
+    --font-sans: 'Montserrat', sans-serif;
+    --nav-h: 70px;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-sans);
+    font-weight: 300;
+    overflow-x: hidden;
+    cursor: none;
+  }
+
+  /* CUSTOM CURSOR */
+  .cursor {
+    position: fixed;
+    width: 8px; height: 8px;
+    background: var(--accent);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 9999;
+    transform: translate(-50%, -50%);
+    transition: transform 0.1s, width 0.3s, height 0.3s, background 0.3s;
+  }
+  .cursor-ring {
+    position: fixed;
+    width: 36px; height: 36px;
+    border: 1px solid rgba(200,169,110,0.5);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 9998;
+    transform: translate(-50%, -50%);
+    transition: transform 0.15s ease-out, width 0.3s, height 0.3s, opacity 0.3s;
+  }
+  .cursor.hover { width: 14px; height: 14px; }
+  .cursor-ring.hover { width: 56px; height: 56px; opacity: 0.6; }
+
+  /* NAV */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    height: var(--nav-h);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 5vw;
+    z-index: 100;
+    transition: background 0.5s, backdrop-filter 0.5s;
+  }
+  nav.scrolled {
+    background: rgba(10,10,10,0.92);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border);
+  }
+  .nav-logo {
+    font-family: var(--font-serif);
+    font-size: 1.35rem;
+    font-weight: 300;
+    letter-spacing: 0.12em;
+    color: var(--text);
+    text-decoration: none;
+  }
+  .nav-logo span { color: var(--accent); }
+  .nav-links {
+    display: flex;
+    gap: 2.5rem;
+    list-style: none;
+  }
+  .nav-links a {
+    font-size: 0.65rem;
+    font-weight: 400;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--muted);
+    text-decoration: none;
+    transition: color 0.3s;
+    position: relative;
+  }
+  .nav-links a::after {
+    content: '';
+    position: absolute;
+    bottom: -3px; left: 0;
+    width: 0; height: 1px;
+    background: var(--accent);
+    transition: width 0.3s;
+  }
+  .nav-links a:hover { color: var(--accent); }
+  .nav-links a:hover::after { width: 100%; }
+  .nav-cta {
+    font-size: 0.6rem;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--bg) !important;
+    background: var(--accent);
+    padding: 0.6rem 1.4rem;
+    text-decoration: none;
+    transition: background 0.3s, transform 0.2s !important;
+  }
+  .nav-cta:hover { background: var(--text) !important; }
+  .nav-cta::after { display: none !important; }
+
+  /* HAMBURGER */
+  .hamburger {
+    display: none;
+    flex-direction: column;
+    gap: 5px;
+    cursor: pointer;
+    padding: 5px;
+    background: none;
+    border: none;
+  }
+  .hamburger span {
+    display: block;
+    width: 24px; height: 1px;
+    background: var(--text);
+    transition: transform 0.3s, opacity 0.3s;
+  }
+  .hamburger.open span:nth-child(1) { transform: translateY(6px) rotate(45deg); }
+  .hamburger.open span:nth-child(2) { opacity: 0; }
+  .hamburger.open span:nth-child(3) { transform: translateY(-6px) rotate(-45deg); }
+
+  /* MOBILE MENU */
+  .mobile-menu {
+    display: flex;
+    position: fixed;
+    top: var(--nav-h); left: 0; right: 0; bottom: 0;
+    background: rgba(10,10,10,0.97);
+    backdrop-filter: blur(30px);
+    z-index: 99;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2.5rem;
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition: opacity 0.4s, visibility 0.4s;
+  }
+  .mobile-menu.open { opacity: 1; visibility: visible; pointer-events: all; }
+  .mobile-menu a {
+    font-family: var(--font-serif);
+    font-size: 2.2rem;
+    font-weight: 300;
+    color: var(--text);
+    text-decoration: none;
+    letter-spacing: 0.08em;
+    transition: color 0.3s;
+  }
+  .mobile-menu a:hover { color: var(--accent); }
+
+  /* HERO */
+  #hero {
+    position: relative;
+    height: 100vh;
+    min-height: 600px;
+    display: flex;
+    align-items: flex-end;
+    padding: 0 5vw 8vh;
+    overflow: hidden;
+  }
+  .hero-bg {
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse at 70% 40%, rgba(200,169,110,0.06) 0%, transparent 60%),
+      linear-gradient(to bottom, transparent 40%, rgba(10,10,10,0.85) 80%, var(--bg) 100%);
+  }
+  /* Simulated photo grid behind hero */
+  .hero-photos {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 3px;
+    opacity: 0.35;
+  }
+  .hero-photo {
+    background: var(--bg3);
+    overflow: hidden;
+    position: relative;
+  }
+  .hero-photo::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(200,169,110,0.08), transparent);
+  }
+  /* Gradient photo fills */
+  .hp1 { background: linear-gradient(160deg, #1a1510 0%, #2a1e0e 40%, #0f0d0b 100%); }
+  .hp2 { background: linear-gradient(200deg, #151515 0%, #0e1a1a 60%, #080808 100%); }
+  .hp3 { background: linear-gradient(120deg, #1c1008 0%, #251a0a 50%, #0a0a0a 100%); }
+  .hp4 { background: linear-gradient(170deg, #0a1020 0%, #121c28 50%, #060810 100%); }
+  .hp5 { background: linear-gradient(140deg, #180e08 0%, #2a1a0c 40%, #0c0c0c 100%); }
+  .hp6 { background: linear-gradient(190deg, #121212 0%, #1e1512 50%, #080808 100%); }
+
+  .hero-content {
+    position: relative;
+    z-index: 2;
+    max-width: 700px;
+  }
+  .hero-eyebrow {
+    font-size: 0.6rem;
+    font-weight: 400;
+    letter-spacing: 0.35em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+  .hero-eyebrow::before {
+    content: '';
+    display: block;
+    width: 40px; height: 1px;
+    background: var(--accent);
+  }
+  .hero-title {
+    font-family: var(--font-serif);
+    font-size: clamp(3.5rem, 9vw, 8rem);
+    font-weight: 300;
+    line-height: 0.92;
+    letter-spacing: -0.01em;
+    margin-bottom: 2rem;
+  }
+  .hero-title em {
+    font-style: italic;
+    color: var(--accent);
+  }
+  .hero-sub {
+    font-size: 0.75rem;
+    font-weight: 300;
+    letter-spacing: 0.12em;
+    color: var(--muted);
+    max-width: 380px;
+    line-height: 1.9;
+    margin-bottom: 3rem;
+  }
+  .hero-buttons {
+    display: flex;
+    gap: 1.2rem;
+    flex-wrap: wrap;
+  }
+  .btn-primary {
+    font-size: 0.6rem;
+    font-weight: 400;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    background: var(--accent);
+    color: var(--bg);
+    padding: 1rem 2.4rem;
+    text-decoration: none;
+    transition: background 0.3s, transform 0.2s;
+    display: inline-block;
+  }
+  .btn-primary:hover { background: var(--text); }
+  .btn-ghost {
+    font-size: 0.6rem;
+    font-weight: 400;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    padding: 1rem 2.4rem;
+    text-decoration: none;
+    transition: border-color 0.3s, color 0.3s;
+    display: inline-block;
+  }
+  .btn-ghost:hover { border-color: var(--accent); color: var(--accent); }
+
+  .hero-scroll {
+    position: absolute;
+    right: 5vw;
+    bottom: 8vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.8rem;
+    z-index: 2;
+  }
+  .hero-scroll span {
+    font-size: 0.55rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--muted);
+    writing-mode: vertical-rl;
+  }
+  .scroll-line {
+    width: 1px;
+    height: 60px;
+    background: linear-gradient(to bottom, var(--accent), transparent);
+    animation: scrollPulse 2s ease-in-out infinite;
+  }
+  @keyframes scrollPulse {
+    0%, 100% { opacity: 1; transform: scaleY(1); }
+    50% { opacity: 0.4; transform: scaleY(0.6); }
+  }
+
+  /* SECTIONS COMMON */
+  section { padding: 8rem 5vw; }
+  .section-label {
+    font-size: 0.55rem;
+    font-weight: 400;
+    letter-spacing: 0.4em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+  .section-label::before {
+    content: '';
+    display: block;
+    width: 30px; height: 1px;
+    background: var(--accent);
+  }
+  .section-title {
+    font-family: var(--font-serif);
+    font-size: clamp(2.2rem, 5vw, 4rem);
+    font-weight: 300;
+    line-height: 1.1;
+    margin-bottom: 1.5rem;
+  }
+  .section-title em { font-style: italic; color: var(--accent); }
+  .section-desc {
+    font-size: 0.78rem;
+    color: var(--muted);
+    line-height: 2;
+    max-width: 540px;
+  }
+
+  /* STATS BAR */
+  .stats-bar {
+    background: var(--bg3);
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    padding: 3rem 5vw;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 2rem;
+  }
+  .stat { text-align: center; }
+  .stat-num {
+    font-family: var(--font-serif);
+    font-size: clamp(2rem, 4vw, 3.2rem);
+    font-weight: 300;
+    color: var(--accent);
+    line-height: 1;
+    display: block;
+  }
+  .stat-label {
+    font-size: 0.6rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-top: 0.5rem;
+    display: block;
+  }
+
+  /* PORTFOLIO */
+  #portfolio { padding-bottom: 6rem; }
+  .portfolio-header {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    margin-bottom: 3rem;
+    flex-wrap: wrap;
+    gap: 2rem;
+  }
+  .category-tabs {
+    display: flex;
+    gap: 0.3rem;
+    flex-wrap: wrap;
+  }
+  .tab {
+    font-size: 0.6rem;
+    font-weight: 400;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--muted);
+    padding: 0.6rem 1.2rem;
+    border: 1px solid transparent;
+    background: none;
+    cursor: pointer;
+    transition: all 0.3s;
+    font-family: var(--font-sans);
+  }
+  .tab:hover { color: var(--text); border-color: var(--border); }
+  .tab.active { color: var(--accent); border-color: var(--accent); }
+
+  .portfolio-grid {
+    display: grid;
+    grid-template-columns: repeat(12, 1fr);
+    gap: 4px;
+  }
+  .photo-item {
+    position: relative;
+    overflow: hidden;
+    cursor: none;
+    background: var(--bg3);
+  }
+  .photo-item:nth-child(1) { grid-column: span 8; aspect-ratio: 16/10; }
+  .photo-item:nth-child(2) { grid-column: span 4; aspect-ratio: 4/5; }
+  .photo-item:nth-child(3) { grid-column: span 4; aspect-ratio: 4/5; }
+  .photo-item:nth-child(4) { grid-column: span 4; aspect-ratio: 4/5; }
+  .photo-item:nth-child(5) { grid-column: span 4; aspect-ratio: 4/5; }
+  .photo-item:nth-child(6) { grid-column: span 6; aspect-ratio: 3/2; }
+  .photo-item:nth-child(7) { grid-column: span 6; aspect-ratio: 3/2; }
+
+  /* Photo placeholders with atmospheric gradients */
+  .photo-item:nth-child(1) .photo-fill { background: linear-gradient(135deg, #1a1208 0%, #2d1e0a 30%, #3a2810 50%, #1a150a 80%, #0a0808 100%); }
+  .photo-item:nth-child(2) .photo-fill { background: linear-gradient(170deg, #0e1520 0%, #151e2a 40%, #0a1018 70%, #050810 100%); }
+  .photo-item:nth-child(3) .photo-fill { background: linear-gradient(145deg, #1a0e08 0%, #281508 40%, #1a0f06 70%, #0a0808 100%); }
+  .photo-item:nth-child(4) .photo-fill { background: linear-gradient(200deg, #101818 0%, #162020 40%, #0e1515 70%, #080f0f 100%); }
+  .photo-item:nth-child(5) .photo-fill { background: linear-gradient(155deg, #181010 0%, #221515 40%, #150e0e 70%, #0a0808 100%); }
+  .photo-item:nth-child(6) .photo-fill { background: linear-gradient(130deg, #120e18 0%, #1a1522 40%, #0e0c15 70%, #080810 100%); }
+  .photo-item:nth-child(7) .photo-fill { background: linear-gradient(175deg, #181208 0%, #241a0a 40%, #160f06 70%, #0a0808 100%); }
+
+  .photo-fill {
+    width: 100%; height: 100%;
+    transition: transform 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  }
+  .photo-item:hover .photo-fill { transform: scale(1.06); }
+
+  .photo-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top, rgba(10,10,10,0.85) 0%, transparent 50%);
+    opacity: 0;
+    transition: opacity 0.4s;
+    display: flex;
+    align-items: flex-end;
+    padding: 1.5rem;
+  }
+  .photo-item:hover .photo-overlay { opacity: 1; }
+  .photo-meta { }
+  .photo-cat {
+    font-size: 0.55rem;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--accent);
+    display: block;
+    margin-bottom: 0.3rem;
+  }
+  .photo-name {
+    font-family: var(--font-serif);
+    font-size: 1.2rem;
+    font-weight: 300;
+    color: var(--text);
+  }
+
+  /* Decorative number on photos */
+  .photo-num {
+    position: absolute;
+    top: 1rem; right: 1rem;
+    font-family: var(--font-serif);
+    font-size: 0.65rem;
+    color: rgba(200,169,110,0.4);
+    letter-spacing: 0.1em;
+  }
+
+  /* O MNĚ */
+  #about { background: var(--bg2); }
+  .about-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8vw;
+    align-items: center;
+  }
+  .about-photo-wrap {
+    position: relative;
+  }
+  .about-photo {
+    aspect-ratio: 3/4;
+    background: linear-gradient(160deg, #1a1208 0%, #2d2010 30%, #1a150a 60%, #0d0b08 100%);
+    position: relative;
+    overflow: hidden;
+  }
+  .about-photo::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to bottom right, rgba(200,169,110,0.05), transparent);
+  }
+  .about-photo-frame {
+    position: absolute;
+    top: -12px; left: -12px; right: 12px; bottom: 12px;
+    border: 1px solid var(--border);
+    pointer-events: none;
+    z-index: -1;
+  }
+  .about-photo-accent {
+    position: absolute;
+    bottom: -20px; right: -20px;
+    width: 120px; height: 120px;
+    background: var(--accent);
+    opacity: 0.08;
+    z-index: -1;
+  }
+  .about-years {
+    position: absolute;
+    bottom: 2rem; left: 2rem;
+    z-index: 2;
+    background: var(--bg);
+    padding: 1rem 1.4rem;
+    border-left: 2px solid var(--accent);
+  }
+  .about-years strong {
+    font-family: var(--font-serif);
+    font-size: 2.5rem;
+    font-weight: 300;
+    color: var(--accent);
+    display: block;
+    line-height: 1;
+  }
+  .about-years span {
+    font-size: 0.6rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .about-text { }
+  .about-quote {
+    font-family: var(--font-serif);
+    font-size: clamp(1.4rem, 2.5vw, 2rem);
+    font-style: italic;
+    font-weight: 300;
+    color: var(--text);
+    line-height: 1.5;
+    margin-bottom: 2rem;
+    padding-left: 1.5rem;
+    border-left: 2px solid var(--accent);
+  }
+  .about-body {
+    font-size: 0.78rem;
+    color: var(--muted);
+    line-height: 2.1;
+    margin-bottom: 2.5rem;
+  }
+  .about-skills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 2.5rem;
+  }
+  .skill-tag {
+    font-size: 0.58rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--accent);
+    border: 1px solid var(--border);
+    padding: 0.4rem 0.9rem;
+  }
+
+  /* CENÍK */
+  #pricing { }
+  .pricing-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1px;
+    background: var(--border);
+    margin-top: 4rem;
+  }
+  .price-card {
+    background: var(--bg);
+    padding: 3rem 2.5rem;
+    position: relative;
+    transition: background 0.3s;
+  }
+  .price-card.featured {
+    background: var(--bg3);
+  }
+  .price-card.featured::before {
+    content: 'Nejoblíbenější';
+    position: absolute;
+    top: -1px; left: 50%; transform: translateX(-50%);
+    background: var(--accent);
+    color: var(--bg);
+    font-size: 0.55rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    padding: 0.35rem 1rem;
+    white-space: nowrap;
+  }
+  .price-tier {
+    font-size: 0.6rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 1.5rem;
+  }
+  .price-name {
+    font-family: var(--font-serif);
+    font-size: 2rem;
+    font-weight: 300;
+    margin-bottom: 0.5rem;
+  }
+  .price-amount {
+    font-family: var(--font-serif);
+    font-size: clamp(2.5rem, 4vw, 3.5rem);
+    font-weight: 300;
+    color: var(--text);
+    line-height: 1;
+    margin-bottom: 0.3rem;
+  }
+  .price-amount sup {
+    font-size: 1.2rem;
+    vertical-align: super;
+    color: var(--accent);
+  }
+  .price-per {
+    font-size: 0.65rem;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+    margin-bottom: 2.5rem;
+    display: block;
+  }
+  .price-divider {
+    height: 1px;
+    background: var(--border);
+    margin-bottom: 2.5rem;
+  }
+  .price-features {
+    list-style: none;
+    margin-bottom: 3rem;
+  }
+  .price-features li {
+    font-size: 0.72rem;
+    color: var(--muted);
+    line-height: 1;
+    padding: 0.7rem 0;
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+  }
+  .price-features li::before {
+    content: '—';
+    color: var(--accent);
+    font-size: 0.65rem;
+    flex-shrink: 0;
+  }
+  .price-features li.incl { color: var(--text); }
+  .btn-price {
+    display: block;
+    text-align: center;
+    font-size: 0.6rem;
+    font-weight: 400;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    padding: 1rem;
+    text-decoration: none;
+    transition: all 0.3s;
+    border: 1px solid var(--border);
+    color: var(--muted);
+  }
+  .btn-price:hover { border-color: var(--accent); color: var(--accent); }
+  .price-card.featured .btn-price {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: var(--bg);
+  }
+  .price-card.featured .btn-price:hover { background: var(--text); border-color: var(--text); }
+
+  /* REZERVACE */
+  #booking { background: var(--bg2); }
+  .booking-grid {
+    display: grid;
+    grid-template-columns: 1fr 1.2fr;
+    gap: 8vw;
+    align-items: start;
+    margin-top: 4rem;
+  }
+  .booking-info { }
+  .booking-process {
+    margin-top: 3rem;
+  }
+  .process-step {
+    display: flex;
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+    align-items: flex-start;
+  }
+  .step-num {
+    font-family: var(--font-serif);
+    font-size: 2.5rem;
+    font-weight: 300;
+    color: var(--border);
+    line-height: 1;
+    flex-shrink: 0;
+    width: 50px;
+  }
+  .step-content { }
+  .step-title {
+    font-size: 0.75rem;
+    font-weight: 400;
+    letter-spacing: 0.1em;
+    color: var(--text);
+    margin-bottom: 0.4rem;
+  }
+  .step-desc {
+    font-size: 0.7rem;
+    color: var(--muted);
+    line-height: 1.8;
+  }
+
+  /* FORM */
+  .booking-form { }
+  .form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-bottom: 1rem;
+  }
+  .form-group {
+    margin-bottom: 1rem;
+  }
+  .form-group label {
+    display: block;
+    font-size: 0.58rem;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 0.6rem;
+  }
+  .form-group input,
+  .form-group select,
+  .form-group textarea {
+    width: 100%;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-family: var(--font-sans);
+    font-size: 0.78rem;
+    font-weight: 300;
+    padding: 0.9rem 1.1rem;
+    outline: none;
+    transition: border-color 0.3s;
+    -webkit-appearance: none;
+  }
+  .form-group input::placeholder,
+  .form-group textarea::placeholder { color: rgba(122,117,112,0.5); }
+  .form-group input:focus,
+  .form-group select:focus,
+  .form-group textarea:focus { border-color: var(--accent); }
+  .form-group select option { background: var(--bg2); }
+  .form-group textarea { resize: vertical; min-height: 120px; }
+  .form-submit {
+    width: 100%;
+    background: var(--accent);
+    color: var(--bg);
+    border: none;
+    font-family: var(--font-sans);
+    font-size: 0.6rem;
+    font-weight: 400;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    padding: 1.2rem;
+    cursor: pointer;
+    transition: background 0.3s;
+    margin-top: 0.5rem;
+  }
+  .form-submit:hover { background: var(--text); }
+  .form-success {
+    display: none;
+    text-align: center;
+    padding: 3rem;
+    border: 1px solid var(--border);
+  }
+  .form-success.show { display: block; }
+  .form-success-icon {
+    font-family: var(--font-serif);
+    font-size: 3rem;
+    color: var(--accent);
+    display: block;
+    margin-bottom: 1rem;
+  }
+  .form-success p {
+    font-size: 0.75rem;
+    color: var(--muted);
+    line-height: 1.8;
+  }
+
+  /* KONTAKT */
+  #contact { }
+  .contact-wrap {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8vw;
+    margin-top: 4rem;
+    align-items: start;
+  }
+  .contact-info { }
+  .contact-item {
+    display: flex;
+    gap: 1.5rem;
+    align-items: flex-start;
+    margin-bottom: 2.5rem;
+    padding-bottom: 2.5rem;
+    border-bottom: 1px solid var(--border);
+  }
+  .contact-icon {
+    width: 40px; height: 40px;
+    border: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    color: var(--accent);
+    font-size: 0.9rem;
+  }
+  .contact-detail { }
+  .contact-type {
+    font-size: 0.55rem;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 0.4rem;
+  }
+  .contact-value {
+    font-family: var(--font-serif);
+    font-size: 1.1rem;
+    font-weight: 300;
+    color: var(--text);
+    text-decoration: none;
+    transition: color 0.3s;
+    display: block;
+  }
+  .contact-value:hover { color: var(--accent); }
+  .social-links {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin-top: 1rem;
+  }
+  .social-link {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    text-decoration: none;
+    color: var(--muted);
+    font-size: 0.7rem;
+    letter-spacing: 0.1em;
+    transition: color 0.3s;
+    padding: 0.8rem 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .social-link:hover { color: var(--accent); }
+  .social-link-name { font-size: 0.55rem; letter-spacing: 0.25em; text-transform: uppercase; }
+
+  /* Map placeholder */
+  .contact-map {
+    aspect-ratio: 1;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 1rem;
+    color: var(--muted);
+    position: relative;
+    overflow: hidden;
+  }
+  .contact-map::before {
+    content: '';
+    position: absolute;
+    inset: 20px;
+    background:
+      repeating-linear-gradient(0deg, transparent, transparent 39px, var(--border) 39px, var(--border) 40px),
+      repeating-linear-gradient(90deg, transparent, transparent 39px, var(--border) 39px, var(--border) 40px);
+  }
+  .map-pin {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -60%);
+    z-index: 2;
+    text-align: center;
+  }
+  .map-pin-dot {
+    width: 14px; height: 14px;
+    background: var(--accent);
+    border-radius: 50%;
+    margin: 0 auto 4px;
+    box-shadow: 0 0 20px rgba(200,169,110,0.4);
+  }
+  .map-pin-label {
+    font-size: 0.6rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--accent);
+    white-space: nowrap;
+    background: var(--bg);
+    padding: 0.3rem 0.7rem;
+  }
+
+  /* FOOTER */
+  footer {
+    background: var(--bg3);
+    border-top: 1px solid var(--border);
+    padding: 4rem 5vw 2rem;
+  }
+  .footer-top {
+    display: grid;
+    grid-template-columns: 1.5fr 1fr 1fr;
+    gap: 4rem;
+    margin-bottom: 4rem;
+    padding-bottom: 4rem;
+    border-bottom: 1px solid var(--border);
+  }
+  .footer-brand {}
+  .footer-logo {
+    font-family: var(--font-serif);
+    font-size: 1.5rem;
+    font-weight: 300;
+    letter-spacing: 0.1em;
+    color: var(--text);
+    margin-bottom: 1rem;
+    display: block;
+  }
+  .footer-logo span { color: var(--accent); }
+  .footer-tagline {
+    font-size: 0.7rem;
+    color: var(--muted);
+    line-height: 1.9;
+    max-width: 280px;
+  }
+  .footer-col-title {
+    font-size: 0.58rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 1.5rem;
+  }
+  .footer-links {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+  }
+  .footer-links a {
+    font-size: 0.72rem;
+    color: var(--muted);
+    text-decoration: none;
+    transition: color 0.3s;
+    letter-spacing: 0.05em;
+  }
+  .footer-links a:hover { color: var(--accent); }
+  .footer-bottom {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+  .footer-copy {
+    font-size: 0.65rem;
+    color: rgba(122,117,112,0.5);
+    letter-spacing: 0.1em;
+  }
+  .footer-policy {
+    display: flex;
+    gap: 2rem;
+  }
+  .footer-policy a {
+    font-size: 0.65rem;
+    color: rgba(122,117,112,0.5);
+    text-decoration: none;
+    letter-spacing: 0.1em;
+    transition: color 0.3s;
+  }
+  .footer-policy a:hover { color: var(--accent); }
+
+  /* FADE IN */
+  .fade-in {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: opacity 0.8s ease, transform 0.8s ease;
+  }
+  .fade-in.visible {
+    opacity: 1;
+    transform: none;
+  }
+
+  /* RESPONSIVE */
+  @media (max-width: 1024px) {
+    .pricing-grid { grid-template-columns: 1fr; max-width: 480px; margin: 4rem auto 0; }
+    .about-grid { grid-template-columns: 1fr; gap: 4rem; }
+    .about-photo-wrap { max-width: 400px; }
+    .footer-top { grid-template-columns: 1fr 1fr; }
+    .footer-brand { grid-column: span 2; }
+  }
+  @media (max-width: 768px) {
+    :root { --nav-h: 60px; }
+    .nav-links { display: none; }
+    .hamburger { display: flex; }
+    body { cursor: auto; }
+    .cursor, .cursor-ring { display: none; }
+
+    section { padding: 5rem 5vw; }
+    .stats-bar { grid-template-columns: repeat(2, 1fr); }
+    .portfolio-grid {
+      grid-template-columns: 1fr 1fr;
+    }
+    .photo-item:nth-child(1) { grid-column: span 2; }
+    .photo-item:nth-child(2) { grid-column: span 1; }
+    .photo-item:nth-child(3) { grid-column: span 1; }
+    .photo-item:nth-child(4) { grid-column: span 1; }
+    .photo-item:nth-child(5) { grid-column: span 1; }
+    .photo-item:nth-child(6) { grid-column: span 2; }
+    .photo-item:nth-child(7) { grid-column: span 2; }
+
+    .booking-grid { grid-template-columns: 1fr; gap: 3rem; }
+    .form-row { grid-template-columns: 1fr; }
+    .contact-wrap { grid-template-columns: 1fr; }
+    .footer-top { grid-template-columns: 1fr; }
+    .footer-brand { grid-column: span 1; }
+  }
+  @media (max-width: 480px) {
+    .hero-title { font-size: 3rem; }
+    .hero-buttons { flex-direction: column; }
+    .hero-scroll { display: none; }
+    .stats-bar { grid-template-columns: 1fr 1fr; padding: 2rem 5vw; }
+    .portfolio-header { flex-direction: column; align-items: flex-start; }
+    .pricing-grid { max-width: 100%; }
+    .footer-policy { flex-direction: column; gap: 0.5rem; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Custom Cursor -->
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+
+<!-- NAV -->
+<nav id="nav">
+  <a href="#hero" class="nav-logo">JAN <span>NOVÁK</span></a>
+  <ul class="nav-links">
+    <li><a href="#portfolio">Portfolio</a></li>
+    <li><a href="#about">O mně</a></li>
+    <li><a href="#pricing">Ceník</a></li>
+    <li><a href="#contact">Kontakt</a></li>
+    <li><a href="#booking" class="nav-cta">Rezervovat</a></li>
+  </ul>
+  <button class="hamburger" id="hamburger" aria-label="Menu">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+
+<!-- MOBILE MENU -->
+<div class="mobile-menu" id="mobileMenu">
+  <a href="#portfolio" class="mobile-link">Portfolio</a>
+  <a href="#about" class="mobile-link">O mně</a>
+  <a href="#pricing" class="mobile-link">Ceník</a>
+  <a href="#booking" class="mobile-link">Rezervovat</a>
+  <a href="#contact" class="mobile-link">Kontakt</a>
+</div>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="hero-photos">
+    <div class="hero-photo hp1"></div>
+    <div class="hero-photo hp2"></div>
+    <div class="hero-photo hp3"></div>
+    <div class="hero-photo hp4"></div>
+    <div class="hero-photo hp5"></div>
+    <div class="hero-photo hp6"></div>
+  </div>
+  <div class="hero-bg"></div>
+  <div class="hero-content">
+    <div class="hero-eyebrow">Fotograf · Praha</div>
+    <h1 class="hero-title">Zachytím<br><em>váš příběh</em></h1>
+    <p class="hero-sub">Portréty, svatby, eventy a komerční fotografie s citem pro světlo, emoci a detail.</p>
+    <div class="hero-buttons">
+      <a href="#portfolio" class="btn-primary">Prohlédnout portfolio</a>
+      <a href="#booking" class="btn-ghost">Rezervovat focení</a>
+    </div>
+  </div>
+  <div class="hero-scroll">
+    <div class="scroll-line"></div>
+    <span>Scroll</span>
+  </div>
+</section>
+
+<!-- STATS BAR -->
+<div class="stats-bar">
+  <div class="stat fade-in">
+    <span class="stat-num">8+</span>
+    <span class="stat-label">Let zkušeností</span>
+  </div>
+  <div class="stat fade-in" style="transition-delay:0.1s">
+    <span class="stat-num">340+</span>
+    <span class="stat-label">Spokojených klientů</span>
+  </div>
+  <div class="stat fade-in" style="transition-delay:0.2s">
+    <span class="stat-num">50+</span>
+    <span class="stat-label">Nafocených svateb</span>
+  </div>
+  <div class="stat fade-in" style="transition-delay:0.3s">
+    <span class="stat-num">12k+</span>
+    <span class="stat-label">Fotek zpracováno</span>
+  </div>
+</div>
+
+<!-- PORTFOLIO -->
+<section id="portfolio">
+  <div class="portfolio-header">
+    <div>
+      <div class="section-label fade-in">Portfolio</div>
+      <h2 class="section-title fade-in">Vybrané <em>práce</em></h2>
+    </div>
+    <div class="category-tabs fade-in">
+      <button class="tab active" data-cat="all">Vše</button>
+      <button class="tab" data-cat="portrait">Portréty</button>
+      <button class="tab" data-cat="wedding">Svatby</button>
+      <button class="tab" data-cat="event">Eventy</button>
+      <button class="tab" data-cat="product">Produkty</button>
+    </div>
+  </div>
+  <div class="portfolio-grid fade-in">
+    <div class="photo-item" data-cat="portrait">
+      <div class="photo-fill hp1"></div>
+      <span class="photo-num">01</span>
+      <div class="photo-overlay">
+        <div class="photo-meta">
+          <span class="photo-cat">Portrét</span>
+          <span class="photo-name">Světlo a stín</span>
+        </div>
+      </div>
+    </div>
+    <div class="photo-item" data-cat="wedding">
+      <div class="photo-fill hp2"></div>
+      <span class="photo-num">02</span>
+      <div class="photo-overlay">
+        <div class="photo-meta">
+          <span class="photo-cat">Svatba</span>
+          <span class="photo-name">Okamžik štěstí</span>
+        </div>
+      </div>
+    </div>
+    <div class="photo-item" data-cat="event">
+      <div class="photo-fill hp3"></div>
+      <span class="photo-num">03</span>
+      <div class="photo-overlay">
+        <div class="photo-meta">
+          <span class="photo-cat">Event</span>
+          <span class="photo-name">Energie pódia</span>
+        </div>
+      </div>
+    </div>
+    <div class="photo-item" data-cat="product">
+      <div class="photo-fill hp4"></div>
+      <span class="photo-num">04</span>
+      <div class="photo-overlay">
+        <div class="photo-meta">
+          <span class="photo-cat">Produkt</span>
+          <span class="photo-name">Čistý tvar</span>
+        </div>
+      </div>
+    </div>
+    <div class="photo-item" data-cat="portrait">
+      <div class="photo-fill hp5"></div>
+      <span class="photo-num">05</span>
+      <div class="photo-overlay">
+        <div class="photo-meta">
+          <span class="photo-cat">Portrét</span>
+          <span class="photo-name">Zlatá hodina</span>
+        </div>
+      </div>
+    </div>
+    <div class="photo-item" data-cat="wedding">
+      <div class="photo-fill hp6"></div>
+      <span class="photo-num">06</span>
+      <div class="photo-overlay">
+        <div class="photo-meta">
+          <span class="photo-cat">Svatba</span>
+          <span class="photo-name">Začátek příběhu</span>
+        </div>
+      </div>
+    </div>
+    <div class="photo-item" data-cat="event">
+      <div class="photo-fill hp1"></div>
+      <span class="photo-num">07</span>
+      <div class="photo-overlay">
+        <div class="photo-meta">
+          <span class="photo-cat">Event</span>
+          <span class="photo-name">Firemní gala</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- O MNĚ -->
+<section id="about">
+  <div class="about-grid">
+    <div class="about-photo-wrap fade-in">
+      <div class="about-photo-frame"></div>
+      <div class="about-photo">
+        <div class="about-years">
+          <strong>8</strong>
+          <span>let zkušeností</span>
+        </div>
+      </div>
+      <div class="about-photo-accent"></div>
+    </div>
+    <div class="about-text">
+      <div class="section-label fade-in">O mně</div>
+      <h2 class="section-title fade-in">Jsem <em>Jan Novák</em>,<br>fotograf z Prahy</h2>
+      <blockquote class="about-quote fade-in">
+        "Každý okamžik existuje jen jednou. Mým úkolem je ho zachytit."
+      </blockquote>
+      <p class="about-body fade-in">
+        Fotografii se věnuji více než 8 let. Začínal jsem s portréty, postupně jsem se rozšiřoval na 
+        svatební fotografii, firemní eventy a komerční projekty. Věřím, že nejlepší fotky vznikají 
+        v přirozených situacích — a proto se vždy snažím vytvořit atmosféru, kde se cítíte uvolněně.
+        <br><br>
+        Pracoval jsem pro Česká televize, Prague Fashion Week, řadu firem i desítky párů 
+        na jejich největší den. Každý projekt beru jako jedinečnou příležitost vyprávět příběh.
+      </p>
+      <div class="about-skills fade-in">
+        <span class="skill-tag">Portréty</span>
+        <span class="skill-tag">Svatby</span>
+        <span class="skill-tag">Eventy</span>
+        <span class="skill-tag">Produkty</span>
+        <span class="skill-tag">Retuš</span>
+        <span class="skill-tag">Studio</span>
+      </div>
+      <a href="#booking" class="btn-primary fade-in">Spolupracovat</a>
+    </div>
+  </div>
+</section>
+
+<!-- CENÍK -->
+<section id="pricing">
+  <div class="section-label fade-in">Ceník</div>
+  <div style="display:flex; align-items:flex-end; justify-content:space-between; flex-wrap:wrap; gap:1rem;">
+    <h2 class="section-title fade-in">Transparentní <em>ceny</em></h2>
+    <p class="section-desc fade-in" style="margin-bottom:1.5rem;">Bez skrytých poplatků. Všechny ceny jsou orientační — finální cena závisí na rozsahu projektu.</p>
+  </div>
+  <div class="pricing-grid fade-in">
+    <div class="price-card">
+      <div class="price-tier">Základní</div>
+      <div class="price-name">Mini</div>
+      <div class="price-amount"><sup>od</sup> 3 900</div>
+      <span class="price-per">Kč / focení</span>
+      <div class="price-divider"></div>
+      <ul class="price-features">
+        <li class="incl">1 hodina focení</li>
+        <li class="incl">1 lokace</li>
+        <li class="incl">20 upravených fotek</li>
+        <li class="incl">Online galerie</li>
+        <li>Tisk fotografií</li>
+        <li>Fotokniha</li>
+      </ul>
+      <a href="#booking" class="btn-price">Rezervovat</a>
+    </div>
+    <div class="price-card featured">
+      <div class="price-tier">Nejoblíbenější</div>
+      <div class="price-name">Standard</div>
+      <div class="price-amount"><sup>od</sup> 7 900</div>
+      <span class="price-per">Kč / focení</span>
+      <div class="price-divider"></div>
+      <ul class="price-features">
+        <li class="incl">3 hodiny focení</li>
+        <li class="incl">2 lokace dle výběru</li>
+        <li class="incl">60 upravených fotek</li>
+        <li class="incl">Online galerie HD</li>
+        <li class="incl">Výběr 5 tisků A4</li>
+        <li>Fotokniha</li>
+      </ul>
+      <a href="#booking" class="btn-price">Rezervovat</a>
+    </div>
+    <div class="price-card">
+      <div class="price-tier">Prémiový</div>
+      <div class="price-name">Premium</div>
+      <div class="price-amount"><sup>od</sup> 14 900</div>
+      <span class="price-per">Kč / focení</span>
+      <div class="price-divider"></div>
+      <ul class="price-features">
+        <li class="incl">Celý den (8 h)</li>
+        <li class="incl">Neomezené lokace</li>
+        <li class="incl">150+ upravených fotek</li>
+        <li class="incl">Online galerie 4K</li>
+        <li class="incl">Fotokniha 30 stran</li>
+        <li class="incl">Prioritní dodání 7 dní</li>
+      </ul>
+      <a href="#booking" class="btn-price">Rezervovat</a>
+    </div>
+  </div>
+  <p style="font-size:0.65rem;color:var(--muted);margin-top:2rem;text-align:center;letter-spacing:0.08em;">
+    Svatební balíčky a komerční projekty — cena dle individuální domluvy. <a href="#contact" style="color:var(--accent);text-decoration:none;">Napište mi →</a>
+  </p>
+</section>
+
+<!-- REZERVACE -->
+<section id="booking">
+  <div class="section-label fade-in">Rezervace</div>
+  <h2 class="section-title fade-in">Pojďme <em>spolupracovat</em></h2>
+  <div class="booking-grid">
+    <div class="booking-info fade-in">
+      <p class="section-desc">Vyplňte formulář a já se vám ozvu do 24 hodin s termínem a detaily.</p>
+      <div class="booking-process">
+        <div class="process-step">
+          <span class="step-num">01</span>
+          <div class="step-content">
+            <div class="step-title">Odešlete poptávku</div>
+            <div class="step-desc">Stačí vyplnit formulář — čím více info, tím lépe se připravím.</div>
+          </div>
+        </div>
+        <div class="process-step">
+          <span class="step-num">02</span>
+          <div class="step-content">
+            <div class="step-title">Potvrzení termínu</div>
+            <div class="step-desc">Ozvu se do 24 h, domluvíme termín a lokaci.</div>
+          </div>
+        </div>
+        <div class="process-step">
+          <span class="step-num">03</span>
+          <div class="step-content">
+            <div class="step-title">Focení</div>
+            <div class="step-desc">Relaxovaná atmosféra, přirozené fotky, žádný stres.</div>
+          </div>
+        </div>
+        <div class="process-step">
+          <span class="step-num">04</span>
+          <div class="step-content">
+            <div class="step-title">Online galerie</div>
+            <div class="step-desc">Hotové fotky v privátní galerii do 14 dní.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="fade-in">
+      <form class="booking-form" id="bookingForm">
+        <div class="form-row">
+          <div class="form-group">
+            <label>Jméno a příjmení *</label>
+            <input type="text" placeholder="Jana Nováková" required>
+          </div>
+          <div class="form-group">
+            <label>E-mail *</label>
+            <input type="email" placeholder="jana@email.cz" required>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Telefon</label>
+            <input type="tel" placeholder="+420 777 123 456">
+          </div>
+          <div class="form-group">
+            <label>Typ focení *</label>
+            <select required>
+              <option value="" disabled selected>Vyberte typ</option>
+              <option>Portrét / headshot</option>
+              <option>Párová fotografie</option>
+              <option>Rodinné focení</option>
+              <option>Svatba</option>
+              <option>Firemní event</option>
+              <option>Produktová fotografie</option>
+              <option>Jiné</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Preferovaný termín</label>
+            <input type="date">
+          </div>
+          <div class="form-group">
+            <label>Balíček</label>
+            <select>
+              <option value="" disabled selected>Vyberte balíček</option>
+              <option>Mini — od 3 900 Kč</option>
+              <option>Standard — od 7 900 Kč</option>
+              <option>Premium — od 14 900 Kč</option>
+              <option>Individuální domluva</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Zpráva / představa</label>
+          <textarea placeholder="Popis focení, lokalita, speciální přání…"></textarea>
+        </div>
+        <button type="submit" class="form-submit">Odeslat poptávku →</button>
+      </form>
+      <div class="form-success" id="formSuccess">
+        <span class="form-success-icon">✓</span>
+        <p>Děkuji za vaši poptávku!<br>Ozvu se vám do 24 hodin.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- KONTAKT -->
+<section id="contact">
+  <div class="section-label fade-in">Kontakt</div>
+  <h2 class="section-title fade-in">Jsem <em>k dispozici</em></h2>
+  <div class="contact-wrap">
+    <div class="contact-info fade-in">
+      <div class="contact-item">
+        <div class="contact-icon">✉</div>
+        <div class="contact-detail">
+          <div class="contact-type">E-mail</div>
+          <a href="mailto:jan@novak-foto.cz" class="contact-value">jan@novak-foto.cz</a>
+        </div>
+      </div>
+      <div class="contact-item">
+        <div class="contact-icon">☏</div>
+        <div class="contact-detail">
+          <div class="contact-type">Telefon</div>
+          <a href="tel:+420777123456" class="contact-value">+420 777 123 456</a>
+        </div>
+      </div>
+      <div class="contact-item">
+        <div class="contact-icon">◎</div>
+        <div class="contact-detail">
+          <div class="contact-type">Lokalita</div>
+          <span class="contact-value">Praha & okolí</span>
+        </div>
+      </div>
+      <div class="social-links">
+        <a href="#" class="social-link">
+          <span class="contact-icon" style="width:32px;height:32px;font-size:0.75rem;">▣</span>
+          <div>
+            <div class="social-link-name">Instagram</div>
+            <div style="font-size:0.7rem;letter-spacing:0.05em;">@jan.novak.foto</div>
+          </div>
+        </a>
+        <a href="#" class="social-link">
+          <span class="contact-icon" style="width:32px;height:32px;font-size:0.75rem;">in</span>
+          <div>
+            <div class="social-link-name">LinkedIn</div>
+            <div style="font-size:0.7rem;letter-spacing:0.05em;">Jan Novák Photography</div>
+          </div>
+        </a>
+        <a href="#" class="social-link">
+          <span class="contact-icon" style="width:32px;height:32px;font-size:0.75rem;">▶</span>
+          <div>
+            <div class="social-link-name">YouTube</div>
+            <div style="font-size:0.7rem;letter-spacing:0.05em;">Behind the Lens</div>
+          </div>
+        </a>
+      </div>
+    </div>
+    <div class="contact-map fade-in">
+      <div class="map-pin">
+        <div class="map-pin-dot"></div>
+        <div class="map-pin-label">Praha, CZ</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-top">
+    <div class="footer-brand">
+      <span class="footer-logo">JAN <span>NOVÁK</span></span>
+      <p class="footer-tagline">Zachytím vaše nejdůležitější okamžiky s profesionalitou a citem pro detail. Praha a okolí.</p>
+    </div>
+    <div>
+      <div class="footer-col-title">Navigace</div>
+      <ul class="footer-links">
+        <li><a href="#portfolio">Portfolio</a></li>
+        <li><a href="#about">O mně</a></li>
+        <li><a href="#pricing">Ceník</a></li>
+        <li><a href="#booking">Rezervace</a></li>
+        <li><a href="#contact">Kontakt</a></li>
+      </ul>
+    </div>
+    <div>
+      <div class="footer-col-title">Služby</div>
+      <ul class="footer-links">
+        <li><a href="#">Portréty</a></li>
+        <li><a href="#">Svatební fotografie</a></li>
+        <li><a href="#">Rodinné focení</a></li>
+        <li><a href="#">Firemní fotografie</a></li>
+        <li><a href="#">Produktová fotografie</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span class="footer-copy">© 2026 Jan Novák Photography. Všechna práva vyhrazena.</span>
+    <div class="footer-policy">
+      <a href="#">Ochrana osobních údajů</a>
+      <a href="#">Obchodní podmínky</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+// CURSOR
+const cursor = document.getElementById('cursor');
+const ring = document.getElementById('cursorRing');
+let mx = 0, my = 0, rx = 0, ry = 0;
+document.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; cursor.style.left = mx + 'px'; cursor.style.top = my + 'px'; });
+function animRing() {
+  rx += (mx - rx) * 0.12;
+  ry += (my - ry) * 0.12;
+  ring.style.left = rx + 'px';
+  ring.style.top = ry + 'px';
+  requestAnimationFrame(animRing);
+}
+animRing();
+document.querySelectorAll('a, button, .tab, .photo-item').forEach(el => {
+  el.addEventListener('mouseenter', () => { cursor.classList.add('hover'); ring.classList.add('hover'); });
+  el.addEventListener('mouseleave', () => { cursor.classList.remove('hover'); ring.classList.remove('hover'); });
+});
+
+// NAV SCROLL
+const nav = document.getElementById('nav');
+window.addEventListener('scroll', () => {
+  nav.classList.toggle('scrolled', window.scrollY > 50);
+});
+
+// HAMBURGER
+const ham = document.getElementById('hamburger');
+const mob = document.getElementById('mobileMenu');
+ham.addEventListener('click', () => {
+  ham.classList.toggle('open');
+  mob.classList.toggle('open');
+});
+document.querySelectorAll('.mobile-link').forEach(l => {
+  l.addEventListener('click', () => {
+    ham.classList.remove('open');
+    mob.classList.remove('open');
+  });
+});
+
+// PORTFOLIO TABS
+const tabs = document.querySelectorAll('.tab');
+const items = document.querySelectorAll('.photo-item');
+tabs.forEach(tab => {
+  tab.addEventListener('click', () => {
+    tabs.forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+    const cat = tab.dataset.cat;
+    items.forEach(item => {
+      if (cat === 'all' || item.dataset.cat === cat) {
+        item.style.opacity = '1';
+        item.style.transform = 'scale(1)';
+      } else {
+        item.style.opacity = '0.2';
+        item.style.transform = 'scale(0.97)';
+      }
+      item.style.transition = 'opacity 0.4s, transform 0.4s';
+    });
+  });
+});
+
+// FORM
+document.getElementById('bookingForm').addEventListener('submit', e => {
+  e.preventDefault();
+  document.getElementById('bookingForm').style.display = 'none';
+  document.getElementById('formSuccess').classList.add('show');
+});
+
+// FADE IN ON SCROLL
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) entry.target.classList.add('visible');
+  });
+}, { threshold: 0.12 });
+document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+
+// Animate hero on load
+document.querySelectorAll('.hero-content > *').forEach((el, i) => {
+  el.style.opacity = '0';
+  el.style.transform = 'translateY(20px)';
+  el.style.transition = `opacity 0.8s ${i * 0.15}s ease, transform 0.8s ${i * 0.15}s ease`;
+  setTimeout(() => {
+    el.style.opacity = '1';
+    el.style.transform = 'none';
+  }, 100 + i * 150);
+});
+</script>
+</body>
+</html>
